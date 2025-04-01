@@ -14,8 +14,10 @@ import ChatBox from "./components/chat/ChatBox";
 import Profile from "./pages/Profile";
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
+import Logout from "./components/auth/Logout";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import PrivateRoute from "./components/auth/PrivateRoute";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Loader from "./components/Loader";
@@ -30,6 +32,15 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/emergency" element={<Emergency />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/logout" element={<Logout />} />
+
+   {/* Protected Routes */}
+   <Route element={<PrivateRoute />}>
+          <Route path="/profile" element={<Profile />} />
+        </Route>
+
         <Route
   path="/donor-dashboard"
   element={
@@ -44,9 +55,6 @@ function App() {
         <Route path="/blood-locator" element={<BloodBankLocator />} />
         <Route path="/donation-history" element={<DonationHistory />} />
         <Route path="/chat" element={<ChatBox />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       </Suspense>

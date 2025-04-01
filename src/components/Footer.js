@@ -1,5 +1,6 @@
 import React from "react";
-import { Box, Typography, Container, Grid } from "@mui/material";
+import { Box, Typography, Link, Container, Grid } from "@mui/material";
+import { Link as RouterLink } from "react-router-dom";
 
 const Footer = () => {
   return (
@@ -12,7 +13,33 @@ const Footer = () => {
           </Grid>
           <Grid item xs={12} sm={4}>
             <Typography variant="h6">Quick Links</Typography>
-            <Typography variant="body2">Home | About | Contact | Emergency</Typography>
+            <ul style={{ padding: 0, listStyleType: "none" }}>
+              <li>
+                <Link component={RouterLink} to="/" color="inherit" style={{ textDecoration: 'none' }}>
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link component={RouterLink} to="/about" color="inherit" style={{ textDecoration: 'none' }}>
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <Link component={RouterLink} to="/contact" color="inherit" style={{ textDecoration: 'none' }}>
+                  Contact Us
+                </Link>
+              </li>
+              <li>
+                <Link component={RouterLink} to="/emergency" color="inherit" style={{ textDecoration: 'none' }}>
+                  Emergency Requests
+                </Link>
+              </li>
+              <li>
+                <Link component={RouterLink} to="/profile" color="inherit" style={{ textDecoration: 'none' }}>
+                  Profile
+                </Link>
+              </li>
+            </ul>
           </Grid>
           <Grid item xs={12} sm={4}>
             <Typography variant="h6">Contact</Typography>
