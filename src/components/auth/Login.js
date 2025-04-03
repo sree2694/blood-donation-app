@@ -1,61 +1,70 @@
 import React, { useState } from "react";
-import { Container, TextField, Button, Typography, Box, Alert } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { Container, TextField, Button, Typography, Box } from "@mui/material";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError(null);
-
     try {
-      const response = await fetch("https://your-api.com/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+      const response = await axios.post("http://localhost:5000/api/auth/login", {
+        email,
+        password,
       });
 
-      const data = await response.json();
-      if (response.ok) {
-        localStorage.setItem("token", data.token);
-        navigate("/profile");
-      } else {
-        setError(data.message || "Invalid credentials!");
+      
+      if (response.data.token) {
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("role", response.data.role);
+
+        // Redirect based on role
+        if (response.data.role === "admin") {
+          navigate("/admin-dashboard");
+        } else if (response.data.role === "donor") {
+          navigate("/donor-dashboard");
+        } else if (response.data.role === "recipient") {
+          navigate("/recipient-dashboard");
+        } else {
+          navigate("/"); // Default route
+        }
       }
-    } catch (err) {
-      setError("Something went wrong! Please try again.");
+      alert("Login successful!");
+      
+    } catch (error) {
+      console.error("Login failed:", error.response?.data || error.message);
+      alert("Invalid credentials, please try again.");
     }
   };
 
   return (
-    <Container maxWidth="sm">
-      <Box sx={{ mt: 8, textAlign: "center" }}>
-        <Typography variant="h4" gutterBottom>Login</Typography>
-        {error && <Alert severity="error">{error}</Alert>}
+    <Container maxWidth="xs">
+      <Box sx={{ mt: 8, p: 3, boxShadow: 3, borderRadius: 2 }}>
+        <Typography variant="h5" gutterBottom>Login</Typography>
         <form onSubmit={handleLogin}>
           <TextField
-            label="Email"
-            type="email"
             fullWidth
-            required
+            label="Email"
             margin="normal"
+            variant="outlined"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
           />
           <TextField
+            fullWidth
             label="Password"
             type="password"
-            fullWidth
-            required
             margin="normal"
+            variant="outlined"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
           />
-          <Button variant="contained" color="primary" fullWidth type="submit" sx={{ mt: 2 }}>
+          <Button fullWidth type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
             Login
           </Button>
         </form>

@@ -41,16 +41,15 @@ function App() {
           <Route path="/profile" element={<Profile />} />
         </Route>
 
-        <Route
-  path="/donor-dashboard"
-  element={
-    <ProtectedRoute>
-      <DonorDashboard />
-    </ProtectedRoute>
-  }
-/>
-        <Route path="/recipient-dashboard" element={<RecipientDashboard />} />
-        <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        <Route path="/admin-dashboard" element={<ProtectedRoute allowedRoles={["admin"]} />}>
+          <Route index element={<AdminDashboard />} />
+        </Route>
+        <Route path="/donor-dashboard" element={<ProtectedRoute allowedRoles={["donor"]} />}>
+          <Route index element={<DonorDashboard />} />
+        </Route>
+        <Route path="/recipient-dashboard" element={<ProtectedRoute allowedRoles={["recipient"]} />}>
+          <Route index element={<RecipientDashboard />} />
+        </Route>
         <Route path="/blood-request" element={<BloodRequestForm />} />
         <Route path="/blood-locator" element={<BloodBankLocator />} />
         <Route path="/donation-history" element={<DonationHistory />} />

@@ -1,91 +1,78 @@
 import React, { useState } from "react";
-import { Container, TextField, Button, Typography, Box, MenuItem, Alert } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { Container, TextField, Button, Typography, MenuItem, Box } from "@mui/material";
 
 const Register = () => {
-  const [formData, setFormData] = useState({ name: "", email: "", password: "", role: "donor" });
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState("donor");
   const navigate = useNavigate();
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    setError(null);
-    setSuccess(null);
-
     try {
-      const response = await fetch("https://your-api.com/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+      await axios.post("http://localhost:5000/api/auth/register", {
+        name,
+        email,
+        password,
+        role,
       });
-
-      const data = await response.json();
-      if (response.ok) {
-        setSuccess("Registration successful! Redirecting...");
-        setTimeout(() => navigate("/login"), 2000);
-      } else {
-        setError(data.message || "Registration failed!");
-      }
-    } catch (err) {
-      setError("Something went wrong! Please try again.");
+      alert("Registration successful! Please login.");
+      navigate("/login");
+    } catch (error) {
+      console.error("Registration failed:", error.response?.data || error.message);
+      alert("Registration failed, please try again.");
     }
   };
 
   return (
-    <Container maxWidth="sm">
-      <Box sx={{ mt: 8, textAlign: "center" }}>
-        <Typography variant="h4" gutterBottom>Register</Typography>
-        {error && <Alert severity="error">{error}</Alert>}
-        {success && <Alert severity="success">{success}</Alert>}
+    <Container maxWidth="xs">
+      <Box sx={{ mt: 8, p: 3, boxShadow: 3, borderRadius: 2 }}>
+        <Typography variant="h5" gutterBottom>Register</Typography>
         <form onSubmit={handleRegister}>
           <TextField
-            label="Full Name"
-            name="name"
             fullWidth
-            required
+            label="Name"
             margin="normal"
-            value={formData.name}
-            onChange={handleChange}
+            variant="outlined"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
           />
           <TextField
+            fullWidth
             label="Email"
-            name="email"
-            type="email"
-            fullWidth
-            required
             margin="normal"
-            value={formData.email}
-            onChange={handleChange}
+            variant="outlined"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
           />
           <TextField
-            label="Password"
-            name="password"
-            type="password"
             fullWidth
-            required
+            label="Password"
+            type="password"
             margin="normal"
-            value={formData.password}
-            onChange={handleChange}
+            variant="outlined"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
           />
           <TextField
             select
-            label="Register As"
-            name="role"
             fullWidth
-            required
+            label="Role"
             margin="normal"
-            value={formData.role}
-            onChange={handleChange}
+            variant="outlined"
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
           >
-            <MenuItem value="donor">Blood Donor</MenuItem>
-            <MenuItem value="recipient">Blood Recipient</MenuItem>
+            <MenuItem value="donor">Donor</MenuItem>
+            <MenuItem value="recipient">Recipient</MenuItem>
           </TextField>
-          <Button variant="contained" color="primary" fullWidth type="submit" sx={{ mt: 2 }}>
+          <Button fullWidth type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
             Register
           </Button>
         </form>
