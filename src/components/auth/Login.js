@@ -1,76 +1,68 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { Container, TextField, Button, Typography, Box } from "@mui/material";
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { TextField, Button, Container, Typography, Box, CircularProgress } from '@mui/material';
+import axios from 'axios';
 
-const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const navigate = useNavigate();
+const Login = ({ onLogin }) => {
+    const { register, handleSubmit, formState: { errors } } = useForm();
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await axios.post("http://localhost:5000/api/auth/login", {
-        email,
-        password,
-      });
+    const onSubmit = async (data) => {
+        setLoading(true);
+        setError(null);
 
-      
-      if (response.data.token) {
-        localStorage.setItem("token", response.data.token);
-        localStorage.setItem("role", response.data.role);
-
-        // Redirect based on role
-        if (response.data.role === "admin") {
-          navigate("/admin-dashboard");
-        } else if (response.data.role === "donor") {
-          navigate("/donor-dashboard");
-        } else if (response.data.role === "recipient") {
-          navigate("/recipient-dashboard");
-        } else {
-          navigate("/"); // Default route
+        try {
+            const response = await axios.post('https://localhost:5000/api/auth/login', data, {
+                withCredentials: true, // Ensure cookies are sent
+            });
+            onLogin(response.data);
+        } catch (err) {
+            setError(err.response?.data?.message || 'Login failed');
+        } finally {
+            setLoading(false);
         }
-      }
-      alert("Login successful!");
-      
-    } catch (error) {
-      console.error("Login failed:", error.response?.data || error.message);
-      alert("Invalid credentials, please try again.");
-    }
-  };
+    };
 
-  return (
-    <Container maxWidth="xs">
-      <Box sx={{ mt: 8, p: 3, boxShadow: 3, borderRadius: 2 }}>
-        <Typography variant="h5" gutterBottom>Login</Typography>
-        <form onSubmit={handleLogin}>
-          <TextField
-            fullWidth
-            label="Email"
-            margin="normal"
-            variant="outlined"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <TextField
-            fullWidth
-            label="Password"
-            type="password"
-            margin="normal"
-            variant="outlined"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <Button fullWidth type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
-            Login
-          </Button>
-        </form>
-      </Box>
-    </Container>
-  );
+    return (
+        <Container maxWidth="xs">
+            <Box display="flex" flexDirection="column" alignItems="center" mt={8}>
+                <Typography variant="h5" gutterBottom>Login</Typography>
+                {error && <Typography color="error">{error}</Typography>}
+                <form onSubmit={handleSubmit(onSubmit)} style={{ width: '100%' }}>
+                    <TextField
+                        fullWidth
+                        label="Email"
+                        variant="outlined"
+                        margin="normal"
+                        {...register('email', { required: 'Email is required' })}
+                        error={!!errors.email}
+                        helperText={errors.email?.message}
+                    />
+                    <TextField
+                        fullWidth
+                        label="Password"
+                        type="password"
+                        variant="outlined"
+                        margin="normal"
+                        {...register('password', { required: 'Password is required' })}
+                        error={!!errors.password}
+                        helperText={errors.password?.message}
+                    />
+                    <Button
+                        type="submit"
+                        fullWidth
+                        variant="contained"
+                        color="primary"
+                        sx={{ mt: 2 }}
+                        disabled={loading}
+                    >
+                        {loading ? <CircularProgress size={24} /> : 'Login'}
+                    </Button>
+                </form>
+            </Box>
+        </Container>
+    );
 };
 
 export default Login;

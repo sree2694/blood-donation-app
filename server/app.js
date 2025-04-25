@@ -27,34 +27,34 @@ db.connect((err) => {
 
 // API Endpoint: Get Users
 // Login API
-app.post("/api/auth/login", (req, res) => {
+app.post('/api/auth/login', async (req, res) => {
   const { email, password } = req.body;
+  
+  // Check user in database
+  const user = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+  if (!user.length) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+  }
 
-  db.query("SELECT * FROM users WHERE email = ?", [email], async (err, results) => {
-    if (err || results.length === 0) {
-      return res.status(401).json({ message: "Invalid email or password" });
-    }
+  // Verify password
+  const isMatch = await bcrypt.compare(password, user[0].password);
+  if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+  }
 
-    const user = results[0];
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: "Invalid email or password" });
-    }
+  // Generate JWT token
+  const token = jwt.sign({ userId: user[0].id, role: user[0].role }, 'SECRET_KEY', { expiresIn: '1h' });
 
-    const token = jwt.sign(
-      { userId: user.id, role: user.role },
-      "your_secret_key",
-      { expiresIn: "1h" }
-    );
-
-    res.json({
-      message: "Login successful",
-      token,
-      role: user.role,  // Send role in response
-    });
+  // Set HTTP-only cookie
+  res.cookie('authToken', token, {
+      httpOnly: true,   // Prevents access from JavaScript
+      secure: true,     // Works only in HTTPS
+      sameSite: 'Strict',
+      maxAge: 3600000   // 1 hour expiry
   });
-});
 
+  res.json({ message: 'Login successful' });
+});
 
 // API Endpoint: Register User
 app.post("/api/auth/register", async (req, res) => {

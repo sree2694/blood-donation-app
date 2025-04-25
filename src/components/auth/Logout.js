@@ -1,37 +1,46 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from "@mui/material";
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
+import axios from "axios";
 
 const Logout = () => {
-  const navigate = useNavigate();
-  const [open, setOpen] = useState(true); // Open dialog on component load
+    const [open, setOpen] = useState(false);
+    const navigate = useNavigate();
 
-  const handleClose = () => {
-    setOpen(false);
-    navigate(-1); // Go back to the previous page if canceled
-  };
+    const handleOpen = () => {
+        setOpen(true);
+    };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token"); // Clear authentication token
-    navigate("/login"); // Redirect to login page
-  };
+    const handleClose = () => {
+        setOpen(false);
+    };
 
-  return (
-    <Dialog open={open} onClose={handleClose}>
-      <DialogTitle>Confirm Logout</DialogTitle>
-      <DialogContent>
-        <Typography>Are you sure you want to log out?</Typography>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose} color="primary">
-          Cancel
-        </Button>
-        <Button onClick={handleLogout} color="error">
-          Logout
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
+    const handleLogout = async () => {
+        try {
+            await axios.post("https://localhost:5000/api/auth/logout", {}, { withCredentials: true });
+            navigate("/login");
+        } catch (error) {
+            console.error("Logout failed", error);
+        }
+    };
+
+    return (
+        <>
+            <Button variant="contained" color="secondary" onClick={handleOpen}>
+                Logout
+            </Button>
+            <Dialog open={open} onClose={handleClose}>
+                <DialogTitle>Confirm Logout</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>Are you sure you want to log out?</DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose} color="primary">Cancel</Button>
+                    <Button onClick={handleLogout} color="secondary" autoFocus>Logout</Button>
+                </DialogActions>
+            </Dialog>
+        </>
+    );
 };
 
 export default Logout;

@@ -1,5 +1,5 @@
 import React from "react";
-import { Container, Typography, Paper, Grid, Button, Card, CardContent } from "@mui/material";
+import { Container, Typography, Grid, Button, Card, CardContent } from "@mui/material";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 
